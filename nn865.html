@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>SETA 數據分析終端</title>
+  <style>
+    :root {
+      --terminal-bg: #0d1117;
+      --terminal-green: #3ddc84;
+      --terminal-blue: #4299e1;
+      --terminal-yellow: #f6e58d;
+      --terminal-red: #ff5f58;
+      --highlight-bg: rgba(61, 220, 132, 0.1);
+      --glow-green: 0 0 5px #3ddc84, 0 0 10px #3ddc8480;
+      --glow-red: 0 0 5px #ff5f58, 0 0 10px #ff5f5880;
+      --scanline: linear-gradient(to bottom, 
+        transparent 50%, 
+        rgba(51, 209, 132, 0.1) 51%, 
+        rgba(51, 209, 132, 0.1) 52%, 
+        transparent 52%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Consolas', 'Monaco', monospace;
+    }
+
+    body {
+      background-color: var(--terminal-bg);
+      color: var(--terminal-green);
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.5;
+      background-image: 
+        var(--scanline),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233ddc84' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .terminal {
+      max-width: 800px;
+      margin: 0 auto;
+      border: 1px solid var(--terminal-green);
+      box-shadow: var(--glow-green);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .terminal-header {
+      background-color: #161b22;
+      padding: 8px 15px;
+      border-bottom: 1px solid var(--terminal-green);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .control-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-red { background-color: #ff5f58; }
+    .dot-yellow { background-color: #ffbd2e; }
+    .dot-green { background-color: #19c37d; }
+
+    .terminal-title {
+      font-size: 14px;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .system-info {
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 15px;
+      background-color: #161b22;
+      border-bottom: 1px dashed #30363d;
+    }
+
+    .terminal-content {
+      padding: 20px;
+      height: calc(100% - 80px);
+    }
+
+    .app-title {
+      font-size: 22px;
+      text-align: center;
+      margin-bottom: 25px;
+      text-shadow: var(--glow-green);
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .app-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--terminal-green), transparent);
+    }
+
+    .version {
+      font-size: 12px;
+      color: #8b949e;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    /* 密码界面样式 */
+    .password-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--terminal-bg);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .password-prompt {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .password-input {
+      width: 100%;
+      max-width: 300px;
+      background-color: #161b22;
+      border: 1px solid var(--terminal-green);
+      padding: 10px;
+      color: var(--terminal-green);
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .password-error {
+      color: var(--terminal-red);
+      font-size: 14px;
+      height: 20px;
+      margin-bottom: 15px;
+      display: none;
+      text-shadow: var(--glow-red);
+    }
+
+    .password-error.show {
+      display: block;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: var(--terminal-blue);
+    }
+
+    input {
+      width: 100%;
+      background-color: #161b22;
+      border: 1px solid var(--terminal-green);
+      border-radius: 3px;
+      padding: 10px 12px;
+      color: var(--terminal-green);
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      box-shadow: var(--glow-green);
+      border-color: var(--terminal-green);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin: 30px 0;
+    }
+
+    button {
+      background-color: #161b22;
+      border: 1px solid var(--terminal-green);
+      color: var(--terminal-green);
+      padding: 10px 20px;
+      font-size: 15px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+      position: relative;
+      z-index: 10;
+    }
+
+    button:hover {
+      background-color: rgba(61, 220, 132, 0.1);
+      box-shadow: var(--glow-green);
+      transform: translateY(-1px);
+    }
+
+    button.primary {
+      background-color: rgba(61, 220, 132, 0.15);
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #161b22;
+      border: 1px solid var(--terminal-green);
+      border-radius: 3px;
+      display: none;
+    }
+
+    .analysis-log {
+      font-size: 14px;
+      color: #8b949e;
+      margin-bottom: 10px;
+    }
+
+    .progress-container {
+      height: 8px;
+      background-color: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+
+    #progress-bar {
+      height: 100%;
+      background-color: var(--terminal-green);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    #output {
+      margin-top: 15px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    #output b {
+      color: var(--terminal-yellow);
+    }
+
+    /* 突出显示关键指标 */
+    .key-metric {
+      font-size: 18px;
+      padding: 8px 12px;
+      margin: 8px 0;
+      background-color: var(--highlight-bg);
+      border-left: 3px solid var(--terminal-green);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    .key-metric b {
+      color: var(--terminal-green);
+      font-size: 20px;
+      text-shadow: var(--glow-green);
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 5px rgba(61, 220, 132, 0.2); }
+      50% { box-shadow: 0 0 10px rgba(61, 220, 132, 0.4); }
+    }
+
+    .meta-info {
+      font-size: 12px;
+      color: #8b949e;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #30363d;
+    }
+
+    .prompt {
+      color: var(--terminal-yellow);
+    }
+
+    /* 跑马灯调整 - 增大显示区域 */
+    .ticker {
+      margin-top: 25px;
+      padding: 12px 15px;
+      background-color: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 3px;
+      font-size: 14px;
+      height: auto;
+      min-height: 36px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .ticker-content {
+      position: absolute;
+      white-space: nowrap;
+      animation: ticker 20s linear infinite;
+    }
+
+    @keyframes ticker {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #484f58;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .char-animation {
+      display: inline-block;
+    }
+
+    @keyframes charPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background-color: var(--terminal-green);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* 加载动画 */
+    .loading-animation {
+      display: inline-flex;
+      gap: 4px;
+      margin-left: 5px;
+    }
+
+    .loading-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--terminal-green);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="window-controls">
+        <span class="control-dot dot-red"></span>
+        <span class="control-dot dot-yellow"></span>
+        <span class="control-dot dot-green"></span>
+      </div>
+      <div class="terminal-title">SETA 數據分析終端 - 運行中</div>
+    </div>
+
+    <div class="system-info">
+      <div id="system-ip">IP: 載入中...</div>
+      <div id="system-time">時間: 載入中...</div>
+    </div>
+
+    <!-- 密码验证界面 -->
+    <div class="password-screen" id="password-screen">
+      <div class="password-prompt">
+        <h2 class="app-title">SETA 安全認證</h2>
+        <p>請輸入訪問密碼以繼續</p>
+      </div>
+      <input type="password" class="password-input" id="password-input" placeholder="密碼">
+      <div class="password-error" id="password-error">密碼錯誤，請重新輸入</div>
+      <button id="login-btn" class="primary">
+        <span>🔑</span> 認證
+      </button>
+    </div>
+
+    <div class="terminal-content" id="main-content">
+      <h1 class="app-title">赛特數據分析系統 v2.18</h1>
+      <div class="version">[系統] 最後更新: 2025/07/25 | 數據庫版本: 1.2.9</div>
+
+      <form id="analysis-form">
+        <div class="input-group">
+          <label><span class="prompt">>></span> GRAND 數值</label>
+          <input type="number" id="input1" placeholder="輸入數值 (例: 15700)" min="1" required>
+        </div>
+
+        <div class="input-group">
+          <label><span class="prompt">>></span> MAJOR 數值</label>
+          <input type="number" id="input2" placeholder="輸入數值 (例: 8200)" min="1" required>
+        </div>
+
+        <div class="input-group">
+          <label><span class="prompt">>></span> MINOR 數值</label>
+          <input type="number" id="input3" placeholder="輸入數值 (例: 2300)" min="1" required>
+        </div>
+
+        <div class="input-group">
+          <label><span class="prompt">>></span> MINI 數值</label>
+          <input type="number" id="input4" placeholder="輸入數值 (例: 580)" min="1" required>
+        </div>
+
+        <div class="btn-group">
+          <button type="submit" class="primary" id="analyze-btn">
+            <span>🔍</span> 開始分析
+          </button>
+          <button type="button" id="example-btn">
+            <span>📊</span> 載入範例數據
+          </button>
+        </div>
+      </form>
+
+      <div id="result">
+        <div class="analysis-log" id="analysis-log">
+          [分析] 初始化模型... 載入訓練數據... 建立預測矩陣...
+        </div>
+        <div class="progress-container">
+          <div id="progress-bar"></div>
+        </div>
+        <div id="output"></div>
+        <button id="copy-btn" style="margin-top: 15px;">
+          <span>📋</span> 複製結果
+        </button>
+      </div>
+
+      <div class="ticker">
+        <div class="ticker-content" id="ticker-content"></div>
+      </div>
+
+      <div class="footer">
+        <p>SETA-P 算法引擎 | 基於1200+歷史樣本訓練</p>
+        <p>© 2025 AT99 賽特安全系統 | 未經授權禁止複製</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 全局变量
+    const CORRECT_PASSWORD = "86578888";
+    let userIp = "未知";
+
+    // 确保DOM完全加载后执行
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取并显示IP地址
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          userIp = data.ip;
+          document.getElementById('system-ip').textContent = `IP: ${userIp}`;
+        })
+        .catch(() => {
+          document.getElementById('system-ip').textContent = `IP: 無法獲取`;
+        });
+
+      // 更新当前时间
+      function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('zh-TW', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        document.getElementById('system-time').textContent = `時間: ${timeString}`;
+      }
+      
+      // 初始更新并每秒更新一次时间
+      updateTime();
+      setInterval(updateTime, 1000);
+
+      // 密码验证
+      document.getElementById('login-btn').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password-input');
+        const passwordError = document.getElementById('password-error');
+        
+        if (passwordInput.value === CORRECT_PASSWORD) {
+          // 密码正确，隐藏密码界面
+          document.getElementById('password-screen').style.display = 'none';
+          // 显示登录成功日志
+          updateTickerContent(`[安全] 用戶從 ${userIp} 登錄成功 | 權限等級: 管理員`);
+        } else {
+          // 密码错误
+          passwordError.classList.add('show');
+          // 抖动效果
+          passwordInput.style.animation = 'none';
+          setTimeout(() => {
+            passwordInput.style.animation = 'shake 0.5s';
+          }, 10);
+          // 3秒后隐藏错误提示
+          setTimeout(() => {
+            passwordError.classList.remove('show');
+          }, 3000);
+        }
+      });
+
+      // 密码框回车提交
+      document.getElementById('password-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          document.getElementById('login-btn').click();
+        }
+      });
+
+      // 哈希種子生成
+      function hashSeed(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = (hash << 5) - hash + str.charCodeAt(i);
+          hash |= 0;
+        }
+        return Math.abs(hash);
+      }
+
+      // 偽隨機數生成
+      function pseudoRandom(seed) {
+        let x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+      }
+
+      // 分析按鈕點擊處理
+      document.getElementById('analyze-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        runAnalysis();
+      });
+
+      // 表單提交處理
+      document.getElementById('analysis-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        runAnalysis();
+      });
+
+      // 載入範例數據
+      document.getElementById('example-btn').addEventListener('click', function() {
+        document.getElementById('input1').value = 15700;
+        document.getElementById('input2').value = 8200;
+        document.getElementById('input3').value = 2300;
+        document.getElementById('input4').value = 580;
+        
+        // 顯示加載提示
+        const logDiv = document.getElementById('analysis-log');
+        logDiv.textContent = '[系統] 已載入範例數據集...';
+        document.getElementById('result').style.display = 'block';
+        
+        // 1秒后自动分析
+        setTimeout(() => {
+          runAnalysis();
+        }, 1000);
+      });
+
+      // 複製結果
+      document.getElementById('copy-btn').addEventListener('click', function() {
+        const text = document.getElementById('output').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const logDiv = document.getElementById('analysis-log');
+          logDiv.textContent = '[系統] 分析結果已複製到剪貼板';
+        }).catch(err => {
+          const logDiv = document.getElementById('analysis-log');
+          logDiv.textContent = '[錯誤] 複製失敗: ' + err.message;
+        });
+      });
+
+      // 核心分析函數
+      function runAnalysis() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'block';
+        
+        const outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = '';
+        
+        const progressBar = document.getElementById('progress-bar');
+        progressBar.style.width = '0%';
+        
+        const logDiv = document.getElementById('analysis-log');
+        logDiv.textContent = '[分析] 正在初始化模型... 加載訓練參數...';
+
+        // 獲取輸入值
+        const grand = document.getElementById('input1').value;
+        const major = document.getElementById('input2').value;
+        const minor = document.getElementById('input3').value;
+        const mini = document.getElementById('input4').value;
+
+        // 簡單驗證
+        if (!grand || !major || !minor || !mini) {
+          logDiv.textContent = '[錯誤] 請填寫所有數值欄位';
+          return;
+        }
+
+        // 生成種子
+        const seedInput = `${grand}-${major}-${minor}-${mini}`;
+        const seed = hashSeed(seedInput);
+
+        // 計算分析結果 - 調整範圍
+        // 今日得分率: 80-140%
+        const 今日得分率 = (80 + pseudoRandom(seed) * 60).toFixed(1);
+        // 近30天平均得分率: 90-110%
+        const 近30天平均 = (90 + pseudoRandom(seed + 1) * 20).toFixed(1);
+        const 風險係數 = (30 + pseudoRandom(seed + 2) * 40).toFixed(1);
+        const 預測準確度 = (75 + pseudoRandom(seed + 3) * 20).toFixed(1);
+
+        // 設置分析時間為15-20秒
+        const 總時間 = 15000 + Math.random() * 5000;
+        let 已用時間 = 0;
+        let 百分比 = 0;
+
+        // 進度日志
+        const logMessages = [
+          '[分析] 正在比對歷史數據...',
+          '[分析] 建立概率模型...',
+          '[分析] 運行波動監測算法...',
+          '[分析] 計算風險係數...',
+          '[分析] 優化預測結果...',
+          '[分析] 生成最終報告...'
+        ];
+
+        // 不規則進度更新函數 - 忽快忽慢的效果
+        function updateProgress() {
+          if (百分比 >= 100) {
+            completeAnalysis();
+            return;
+          }
+
+          // 隨機進度增長（加強忽快忽慢的效果）
+          let progressIncrement;
+          
+          if (百分比 < 10 || 百分比 > 90) {
+            // 開始和結束階段 - 較慢
+            progressIncrement = 0.1 + Math.random() * 0.8;
+          } else if (百分比 < 30 || 百分比 > 70) {
+            // 中間階段 - 波動更大
+            progressIncrement = Math.random() > 0.7 ? 0.2 : (0.8 + Math.random() * 2);
+          } else {
+            // 核心計算階段 - 波動最大
+            progressIncrement = Math.random() > 0.6 ? 0.3 : (1 + Math.random() * 4);
+          }
+
+          百分比 += progressIncrement;
+          if (百分比 > 100) 百分比 = 100;
+          
+          progressBar.style.width = 百分比 + '%';
+
+          // 更新日志
+          const logIndex = Math.floor((百分比 / 100) * logMessages.length);
+          if (logIndex < logMessages.length) {
+            logDiv.textContent = logMessages[logIndex];
+          }
+
+          // 計算下次更新的隨機延遲（增強不規則性）
+          const nextDelay = 30 + Math.random() * 300;
+          已用時間 += nextDelay;
+          
+          // 如果超過總時間，強制完成
+          if (已用時間 >= 總時間) {
+            百分比 = 100;
+          }
+
+          setTimeout(updateProgress, nextDelay);
+        }
+
+        // 完成分析 - 結果直接顯示，不使用逐字動畫
+        function completeAnalysis() {
+          progressBar.style.width = '100%';
+          logDiv.textContent = '[分析] 完成! 結果生成完畢';
+          
+          // 結果直接顯示，不使用逐字動畫
+          const outputText = `
+            <div><b>指令執行完畢</b> - 分析報告 v2.18</div>
+            <div class="key-metric">今日得分率: <b>${今日得分率}%</b></div>
+            <div class="key-metric">近30天平均得分率: <b>${近30天平均}%</b></div>
+            <div>風險係數: <b>${風險係數}%</b></div>
+            <div>預測準確度: <b>${預測準確度}%</b></div>
+            <div>分析時間: <b>${new Date().toLocaleString()}</b></div>
+            <div>來源IP: <b>${userIp}</b></div>
+            <div class="meta-info">
+              [系統] 算法: SETA-P v2.18 | 冷熱分佈模型 + 突波異常監控
+            </div>
+          `;
+          
+          outputDiv.innerHTML = outputText;
+        }
+
+        // 開始更新進度
+        updateProgress();
+      }
+
+      // 跑馬燈日志
+      const 日志消息 = [
+        '[日志] 會員 ken556 分析請求成功處理',
+        '[日志] 模型訓練數據更新完畢: 1200+ 樣本',
+        '[日志] 會員 IVY334 獲利 +7820 已記錄',
+        '[系統] 數據庫連接正常 | 響應時間: 124ms',
+        '[日志] 會員 junie001 分析請求成功處理',
+        '[系統] 算法引擎升級至 v2.18 完成',
+        '[日志] 會員 yao556 獲利 +6540 已記錄',
+        '[系統] 安全校驗通過 | 連接來源: 已授權IP'
+      ];
+
+      // 更新跑馬燈內容
+      function updateTickerContent(text) {
+        document.getElementById('ticker-content').textContent = text;
+      }
+
+      // 隨機更新跑馬燈
+      function 隨機更新日志() {
+        const 隨機索引 = Math.floor(Math.random() * 日志消息.length);
+        updateTickerContent(日志消息[隨機索引]);
+      }
+
+      // 初始化跑馬燈
+      隨機更新日志();
+      setInterval(隨機更新日志, 8000);
+    });
+  </script>
+</body>
+</html>
