@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>禁忌影片</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        blood: '#9B2226',
+                        dark: '#030712',
+                        cursed: '#4B0082',
+                        ghost: '#F8F9FA'
+                    },
+                    fontFamily: {
+                        horror: ['Creepster', 'Noto Sans TC', 'cursive'],
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .question-appear {
+                animation: fadeIn 0.8s ease-out forwards;
+            }
+            .prank-popup {
+                animation: popIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            }
+            .btn-hover {
+                @apply transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_15px_rgba(255,0,0,0.5)];
+            }
+            .glitch {
+                animation: glitch 2s infinite;
+            }
+            .flicker {
+                animation: flicker 3s infinite;
+            }
+            .shake {
+                animation: shake 0.5s;
+            }
+            .text-shadow {
+                text-shadow: 0 0 10px rgba(255,0,0,0.7);
+            }
+        }
+    </style>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body {
+            background-color: #000000;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(155, 34, 38, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(75, 0, 130, 0.1) 0%, transparent 20%);
+            color: #F8F9FA;
+            font-family: 'Noto Sans TC', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* 恐怖動畫效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); filter: blur(5px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+            70% { opacity: 0.9; }
+            90% { opacity: 0.7; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .question-container {
+            opacity: 0;
+            display: none;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .question-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: rgba(155, 34, 38, 0.1);
+            border-radius: inherit;
+            z-index: -1;
+            filter: blur(5px);
+        }
+        
+        .final-message {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        /* 文字顯示優化 */
+        .final-message p, .final-message button {
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        
+        /* 恐怖裝飾元素 */
+        .horror-decoration {
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        
+        .spider {
+            top: 10%;
+            right: 5%;
+            background-image: url('https://picsum.photos/id/175/200/200');
+            animation: crawl 20s infinite linear;
+        }
+        
+        .skull {
+            bottom: 10%;
+            left: 5%;
+            background-image: url('https://picsum.photos/id/174/200/200');
+            animation: rotate 30s infinite linear;
+        }
+        
+        @keyframes crawl {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-50px, 30px) rotate(90deg); }
+            50% { transform: translate(-100px, 0) rotate(180deg); }
+            75% { transform: translate(-50px, -30px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 電視雜訊效果 */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://picsum.photos/id/106/1000/1000');
+            background-size: 200px;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 10;
+            animation: noise 0.5s infinite;
+        }
+        
+        @keyframes noise {
+            0% { background-position: 0 0; }
+            10% { background-position: -5% -5%; }
+            20% { background-position: -10% 5%; }
+            30% { background-position: 5% -10%; }
+            40% { background-position: -5% 15%; }
+            50% { background-position: -10% 5%; }
+            60% { background-position: 15% 0; }
+            70% { background-position: 0 10%; }
+            80% { background-position: 5% 5%; }
+            90% { background-position: -5% 0; }
+            100% { background-position: 0 0; }
+        }
+        
+        .container-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 40px);
+        }
+        
+        /* 滾動條美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #9B2226;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7a1a1e;
+        }
+    </style>
+</head>
+<body>
+    <!-- 恐怖裝飾元素 -->
+    <div class="horror-decoration spider"></div>
+    <div class="horror-decoration skull"></div>
+    <div class="noise-overlay"></div>
+    
+    <!-- 音效元素 -->
+    <audio id="creak-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-door-creak-1370.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="scream-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-woman-screaming-1510.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="whisper-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-ghost-whispering-2774.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="thunder-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-distant-thunder-rumble-1279.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="heartbeat-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-fast-heartbeat-1133.mp3" type="audio/mpeg">
+    </audio>
+    
+    <div class="container-wrapper">
+        <div id="question-container-1" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.3)] border border-blood/30">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker">你確定要看這個影片嗎？</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">據說看過的人都會遇到不幸...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="2">
+                    是的，我要看
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    不要看了
+                </button>
+            </div>
+        </div>
+        
+        <!-- 確認問題容器 2-10 -->
+        <div id="question-container-2" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.3)] border border-blood/30">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker">這個影片很可怕，你確定要看嗎？</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">畫面中可能會有不該存在的東西...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="3">
+                    是的，我要看
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    不要看了
+                </button>
+            </div>
+        </div>
+        
+        <div id="question-container-3" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.3)] border border-blood/30">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker">裡面有嚇人的畫面，真的要繼續嗎？</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">有些人說看完後聽到奇怪的聲音...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="4">
+                    是的，我要看
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    不要看了
+                </button>
+            </div>
+        </div>
+        
+        <div id="question-container-4" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.3)] border border-blood/30">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker">很多人看了都嚇到了，你確定嗎？</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">畫面會烙印在你的記憶深處...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="5">
+                    是的，我要看
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    不要看了
+                </button>
+            </div>
+        </div>
+        
+        <div id="question-container-5" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.3)] border border-blood/30">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker">真的不後悔嗎？確定要看？</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">有人說那個畫面會跟著你好幾天...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="6">
+                    是的，我要看
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    不要看了
+                </button>
+            </div>
+        </div>
+        
+        <div id="question-container-6" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.3)] border border-blood/30">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker">最後確認一次，你真的想看嗎？</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">我已經警告過你了...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="7">
+                    是的，我要看
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    不要看了
+                </button>
+            </div>
+        </div>
+        
+        <div id="question-container-7" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.3)] border border-blood/30">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker">我勸你還是不要看比較好...</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">你會後悔的，相信我...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="8">
+                    我堅持要看
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    不要看了
+                </button>
+            </div>
+        </div>
+        
+        <div id="question-container-8" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.3)] border border-blood/30">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker">真的不聽勸嗎？看了會後悔的！</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">畫面即將出現，最後的機會...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="9">
+                    我就是要看
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    不要看了
+                </button>
+            </div>
+        </div>
+        
+        <div id="question-container-9" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.5)] border border-blood/50">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker">好吧，這是最後一次機會，確定要看？</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">畫面即將顯示，請做好心理準備...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="10">
+                    確定要看
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    不要看了
+                </button>
+            </div>
+        </div>
+        
+        <div id="question-container-10" class="question-container w-full max-w-2xl mx-auto text-center p-8 bg-dark/80 rounded-xl shadow-[0_0_20px_rgba(155,34,38,0.7)] border border-blood/70">
+            <h2 class="text-[clamp(1.5rem,5vw,2.5rem)] font-horror mb-8 text-ghost flicker glitch">即將播放，真的不改變主意了？</h2>
+            <p class="text-gray-400 mb-6 text-sm italic">3... 2... 1...</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="confirm-btn bg-blood hover:bg-blood/80 text-white px-8 py-3 rounded-lg font-semibold btn-hover" data-next="final">
+                    不改變主意
+                </button>
+                <button class="cancel-btn bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                    還是不要看了
+                </button>
+            </div>
+        </div>
+        
+        <!-- 最終整蛊消息 -->
+        <div id="final-message" class="final-message w-full max-w-4xl mx-auto p-8">
+            <div class="prank-popup">
+                <!-- 顯示圖片 -->
+                <div class="mb-6">
+                    <img src="https://i.ibb.co/8n3fL3cq/1.jpg" alt="恐怖驚嚇圖片" class="mx-auto max-w-full h-auto rounded-lg shadow-[0_0_30px_rgba(255,0,0,0.5)]">
+                </div>
+                
+                <h1 class="text-[clamp(2.5rem,15vw,6rem)] font-horror text-blood mb-6 drop-shadow-[0_0_15px_rgba(155,34,38,0.8)] glitch text-shadow">
+                    你被整了！
+                </h1>
+                
+                <!-- 獎勵按鈕 - 優化文字顯示 -->
+                <button id="reward-btn" class="bg-yellow-500 hover:bg-yellow-600 text-black text-lg md:text-xl font-bold py-5 px-6 rounded-full mb-8 btn-hover leading-relaxed whitespace-pre-line max-w-full">
+                    哈哈～被整嚇到了吧？
+別氣，我補償你一個更好玩的：
+
+🎉 免費 $1000 體驗金 → 直接進我們娛樂城玩一場！
+敢不敢？點進去就知道。
+
+💡 如果你本來就有在玩的，
+我們還會額外送你【AI計算程式】，
+      讓你穩贏。
+
+👉 不管你是新手還是老手，
+  現在點下去都有好康！
+                </button>
+                
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+                    <a href="https://line.me/ti/p/sAcfLwFjDw" target="_blank" class="bg-green-600 hover:bg-green-700 text-white text-lg font-bold py-3 px-6 rounded-lg btn-hover flex items-center justify-center">
+                        <i class="fa fa-commenting-o mr-2"></i> 我的LINE連接
+                    </a>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="https://x1123557.github.io/nn865-isid.html" target="_blank" class="bg-blue-800 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg btn-hover">
+                        百家分析程式
+                    </a>
+                    <a href="https://x1123557.github.io/nn865-isid.html" target="_blank" class="bg-purple-800 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg btn-hover">
+                        賽特分析程式
+                    </a>
+                    <a href="https://x1123557.github.io/nn865-isid.html" target="_blank" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg btn-hover">
+                        雷神分析程式
+                    </a>
+                </div>
+                
+                <button id="restart-btn" class="mt-10 bg-blood hover:bg-blood/80 text-white font-medium py-2 px-6 rounded-lg btn-hover">
+                    再玩一次
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 等待DOM完全加載後執行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 獲取音效元素
+            const creakSound = document.getElementById('creak-sound');
+            const screamSound = document.getElementById('scream-sound');
+            const whisperSound = document.getElementById('whisper-sound');
+            const thunderSound = document.getElementById('thunder-sound');
+            const heartbeatSound = document.getElementById('heartbeat-sound');
+            
+            // 音效列表
+            const soundEffects = {
+                creak: creakSound,
+                scream: screamSound,
+                whisper: whisperSound,
+                thunder: thunderSound,
+                heartbeat: heartbeatSound
+            };
+            
+            // 設置所有音效音量
+            Object.values(soundEffects).forEach(sound => {
+                if (sound) sound.volume = 0.3;
+            });
+            
+            // 播放音效函數
+            function playSound(soundName) {
+                const sound = soundEffects[soundName];
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.play().catch(e => console.log(`音效 ${soundName} 播放失敗:`, e));
+                }
+            }
+            
+            // 隨機播放恐怖音效
+            function playRandomHorrorSound() {
+                // 隨著問題進展，增加音效恐怖程度
+                const questionNumber = parseInt(currentQuestion);
+                let sounds;
+                
+                if (questionNumber < 4) {
+                    sounds = ['creak'];
+                } else if (questionNumber < 7) {
+                    sounds = ['creak', 'whisper'];
+                } else {
+                    sounds = ['creak', 'whisper', 'thunder'];
+                }
+                
+                const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+                playSound(randomSound);
+            }
+            
+            // 獲取所有按鈕
+            const confirmBtns = document.querySelectorAll('.confirm-btn');
+            const cancelBtns = document.querySelectorAll('.cancel-btn');
+            const restartBtn = document.getElementById('restart-btn');
+            const rewardBtn = document.getElementById('reward-btn');
+            
+            // 當前顯示的問題
+            let currentQuestion = '1';
+            
+            // 顯示指定的問題容器
+            function showQuestion(questionNumber) {
+                currentQuestion = questionNumber;
+                
+                // 隨機播放恐怖音效
+                if (questionNumber > 1) {
+                    playRandomHorrorSound();
+                    
+                    // 第8題開始播放心跳聲
+                    if (questionNumber >= 8) {
+                        playSound('heartbeat');
+                    }
+                }
+                
+                // 隱藏所有問題容器和最終消息
+                document.querySelectorAll('.question-container').forEach(container => {
+                    container.style.display = 'none';
+                    container.classList.remove('question-appear');
+                });
+                document.getElementById('final-message').style.display = 'none';
+                
+                // 顯示指定的問題容器
+                const targetContainer = document.getElementById(`question-container-${questionNumber}`);
+                if (targetContainer) {
+                    targetContainer.style.display = 'block';
+                    
+                    // 添加震動效果
+                    document.body.classList.add('shake');
+                    setTimeout(() => {
+                        document.body.classList.remove('shake');
+                    }, 500);
+                    
+                    // 強制回流後添加動畫類
+                    setTimeout(() => {
+                        targetContainer.classList.add('question-appear');
+                    }, 10);
+                } else {
+                    console.error(`找不到問題容器: question-container-${questionNumber}`);
+                }
+            }
+            
+            // 顯示最終消息
+            function showFinalMessage() {
+                // 停止所有音效
+                Object.values(soundEffects).forEach(sound => {
+                    if (sound) sound.pause();
+                });
+                
+                // 播放尖叫音效
+                playSound('scream');
+                
+                // 閃爍效果
+                let flashCount = 0;
+                const flashInterval = setInterval(() => {
+                    document.body.style.backgroundColor = flashCount % 2 === 0 ? '#000' : '#9B2226';
+                    flashCount++;
+                    if (flashCount >= 6) {
+                        clearInterval(flashInterval);
+                        document.body.style.backgroundColor = '#000';
+                    }
+                }, 100);
+                
+                // 隱藏所有問題容器
+                document.querySelectorAll('.question-container').forEach(container => {
+                    container.style.display = 'none';
+                });
+                
+                // 添加震動效果
+                document.body.classList.add('shake');
+                setTimeout(() => {
+                    document.body.classList.remove('shake');
+                }, 1000);
+                
+                // 顯示最終消息
+                setTimeout(() => {
+                    document.getElementById('final-message').style.display = 'block';
+                    // 顯示後播放雷聲增強效果
+                    setTimeout(() => playSound('thunder'), 1000);
+                }, 600);
+            }
+            
+            // 確認按鈕點擊事件
+            confirmBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const next = btn.getAttribute('data-next');
+                    if (next === 'final') {
+                        showFinalMessage();
+                    } else if (next) {
+                        showQuestion(next);
+                    }
+                });
+            });
+            
+            // 取消按鈕點擊事件 - 回到第一個問題
+            cancelBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    showQuestion('1');
+                });
+            });
+            
+            // 重新開始按鈕
+            if (restartBtn) {
+                restartBtn.addEventListener('click', () => {
+                    // 停止所有音效
+                    Object.values(soundEffects).forEach(sound => {
+                        if (sound) sound.pause();
+                    });
+                    
+                    document.getElementById('final-message').style.display = 'none';
+                    showQuestion('1');
+                });
+            }
+            
+            // 獎勵按鈕點擊事件
+            if (rewardBtn) {
+                rewardBtn.addEventListener('click', () => {
+                    window.location.href = "https://x1123557.github.io/nn865-isid.html";
+                });
+            }
+            
+            // 初始顯示第一個問題，並播放門吱呀聲
+            setTimeout(() => {
+                showQuestion('1');
+                setTimeout(() => playSound('creak'), 500);
+            }, 300);
+        });
+    </script>
+</body>
+</html>
+    
