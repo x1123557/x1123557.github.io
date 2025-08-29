@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的自訂連結導覽</title>
     <!-- 引入免費圖標庫 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net.net/npm/font-awesome@4.7.0/css/font/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
     <style>
         /* 頁面基礎樣式 */
         * {
@@ -14,14 +14,22 @@
             font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
         }
         body {
-            /* 柔和漸變背景 */
+            /* 增強漸變背景效果 */
             background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            background-image: 
+                radial-gradient(at 40% 20%, rgba(52, 152, 219, 0.05) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, rgba(142, 68, 173, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, rgba(52, 152, 219, 0.05) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, rgba(46, 204, 113, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(142, 68, 173, 0.05) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, rgba(52, 152, 219, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 0%, rgba(46, 204, 113, 0.05) 0px, transparent 50%);
             padding: 20px;
             min-height: 100vh;
             background-attachment: fixed;
             line-height: 1.6;
         }
-        /* 標題樣式 */
+        /* 標題樣式增強 */
         .page-title {
             text-align: center;
             color: #2c3e50;
@@ -33,6 +41,7 @@
             display: inline-block;
             left: 50%;
             transform: translateX(-50%);
+            padding: 0 20px;
         }
         .page-title::after {
             content: '';
@@ -42,8 +51,12 @@
             background: #3498db;
             border-radius: 2px;
             margin: 15px auto 0;
+            transition: width 0.3s ease;
         }
-        /* 連結分類卡片樣式 */
+        .page-title:hover::after {
+            width: 120px;
+        }
+        /* 連結分類卡片樣式增強 */
         .link-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -57,13 +70,31 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.09);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255,255,255,0.6);
+            overflow: hidden;
+            position: relative;
+        }
+        /* 卡片裝飾元素 */
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #8e44ad);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
         .link-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            border-color: rgba(255,255,255,0.9);
+        }
+        .link-card:hover::before {
+            transform: scaleX(1);
         }
         /* 突出顯示註冊連結卡片 */
         .link-card.important {
@@ -83,6 +114,8 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
+            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
+            z-index: 1;
         }
         .card-title {
             color: #3498db;
@@ -93,16 +126,30 @@
             font-weight: bold;
             padding-bottom: 12px;
             border-bottom: 1px solid #f0f0f0;
+            transition: color 0.3s ease;
+        }
+        .link-card:hover .card-title {
+            color: #2980b9;
         }
         .card-title i {
             margin-right: 12px;
             color: #3498db;
             font-size: 24px;
+            transition: transform 0.3s ease;
         }
-        /* 單個連結樣式 */
+        .link-card:hover .card-title i {
+            transform: scale(1.1) rotate(5deg);
+        }
+        /* 單個連結樣式增強 */
         .link-item {
             padding: 15px 0;
             border-bottom: 1px solid #f1f1f1;
+            transition: background-color 0.2s ease;
+        }
+        .link-item:hover {
+            background-color: rgba(240, 244, 248, 0.5);
+            padding-left: 8px;
+            border-radius: 4px;
         }
         .link-item:last-child {
             border-bottom: none;
@@ -112,6 +159,10 @@
             color: #7f8c8d;
             margin-bottom: 5px;
             padding-left: 36px;
+            transition: color 0.3s ease;
+        }
+        .link-item:hover .link-description {
+            color: #34495e;
         }
         .link-wrapper {
             display: flex;
@@ -123,20 +174,38 @@
             margin-right: 12px;
             color: #27ae60;
             font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        .link-item:hover .link-wrapper i {
+            transform: translateX(3px);
         }
         .link-wrapper a {
             color: #2c3e50;
             text-decoration: none;
             font-size: 16px;
-            transition: color 0.3s;
+            transition: color 0.3s, padding-left 0.3s;
             flex-grow: 1;
             word-break: break-all;
+            position: relative;
+        }
+        .link-wrapper a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background-color: #3498db;
+            transition: width 0.3s ease;
         }
         .link-wrapper a:hover {
             color: #3498db;
-            text-decoration: underline;
+            text-decoration: none;
         }
-        /* 複製按鈕樣式 */
+        .link-wrapper a:hover::after {
+            width: 100%;
+        }
+        /* 複製按鈕樣式增強 */
         .copy-btn {
             background: #f1f5f9;
             border: none;
@@ -148,6 +217,12 @@
             transition: all 0.2s;
             display: flex;
             align-items: center;
+            opacity: 0.8;
+            transform: translateY(2px);
+        }
+        .link-item:hover .copy-btn {
+            opacity: 1;
+            transform: translateY(0);
         }
         .copy-btn i {
             margin-right: 5px;
@@ -158,11 +233,13 @@
         .copy-btn:hover {
             background: #3498db;
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
         }
         .copy-btn:hover i {
             color: white;
         }
-        /* 複製成功提示 */
+        /* 複製成功提示動畫增強 */
         .copy-toast {
             position: fixed;
             bottom: 30px;
@@ -174,15 +251,17 @@
             border-radius: 6px;
             box-shadow: 0 6px 16px rgba(0,0,0,0.15);
             opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
+            transition: opacity 0.3s, transform 0.3s, box-shadow 0.3s;
             pointer-events: none;
             transform: translate(-50%, 20px);
+            z-index: 1000;
         }
         .copy-toast.show {
             opacity: 1;
             transform: translate(-50%, 0);
+            box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3);
         }
-        /* 深色模式切換按鈕 */
+        /* 深色模式切換按鈕增強 */
         .theme-toggle {
             position: fixed;
             top: 20px;
@@ -201,26 +280,47 @@
             z-index: 100;
         }
         .theme-toggle:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) rotate(10deg);
             background: #f1f1f1;
         }
         .theme-toggle i {
             font-size: 20px;
             color: #34495e;
+            transition: transform 0.3s ease;
+        }
+        .theme-toggle:hover i {
+            transform: rotate(90deg);
         }
 
-        /* 深色模式樣式 */
+        /* 深色模式樣式增強 */
         .dark-mode body {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background-image: 
+                radial-gradient(at 40% 20%, rgba(76, 201, 240, 0.05) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, rgba(156, 39, 176, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, rgba(76, 201, 240, 0.05) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, rgba(46, 204, 113, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(156, 39, 176, 0.05) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, rgba(76, 201, 240, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 0%, rgba(46, 204, 113, 0.05) 0px, transparent 50%);
         }
         .dark-mode .link-card {
             background: rgba(30, 41, 59, 0.95);
             border-color: rgba(50, 65, 87, 0.6);
         }
+        .dark-mode .link-card:hover {
+            border-color: rgba(76, 201, 240, 0.4);
+        }
+        .dark-mode .link-card::before {
+            background: linear-gradient(90deg, #4cc9f0, #9c27b0);
+        }
         .dark-mode .card-title, 
         .dark-mode .link-item a, 
         .dark-mode .page-title {
             color: #e2e8f0;
+        }
+        .dark-mode .link-item:hover {
+            background-color: rgba(45, 55, 72, 0.5);
         }
         .dark-mode .link-item i {
             color: #4cc9f0;
@@ -233,6 +333,7 @@
         }
         .dark-mode .link-card.important::before {
             background: #4cc9f0;
+            box-shadow: 0 2px 5px rgba(76, 201, 240, 0.3);
         }
         .dark-mode .link-card.important .card-title {
             color: #4cc9f0;
@@ -252,12 +353,19 @@
         }
         .dark-mode .copy-btn:hover {
             background: #4cc9f0;
+            box-shadow: 0 3px 8px rgba(76, 201, 240, 0.3);
         }
         .dark-mode .link-description {
             color: #94a3b8;
         }
+        .dark-mode .link-item:hover .link-description {
+            color: #cbd5e1;
+        }
         .dark-mode .page-title::after {
             background: #4cc9f0;
+        }
+        .dark-mode .link-wrapper a::after {
+            background-color: #4cc9f0;
         }
     </style>
 </head>
@@ -282,7 +390,7 @@
                 <div class="link-description">AT99 HG07註冊</div>
                 <div class="link-wrapper">
                     <i class="fa fa-link"></i>
-                    <a href="#" target="_blank">https://at99.one/Register?p=HG07</a>
+                    <a href="https://at99.one/Register?p=HG07" target="_blank">https://at99.one/Register?p=HG07</a>
                     <button class="copy-btn" data-link="https://at99.one/Register?p=HG07"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -290,7 +398,7 @@
                 <div class="link-description">TU HG07 註冊</div>
                 <div class="link-wrapper">
                     <i class="fa fa-link"></i>
-                    <a href="#" target="_blank">https://tu123.app/a/register?promoCode=HG07</a>
+                    <a href="https://tu123.app/a/register?promoCode=HG07" target="_blank">https://tu123.app/a/register?promoCode=HG07</a>
                     <button class="copy-btn" data-link="https://tu123.app/a/register?promoCode=HG07"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -298,7 +406,7 @@
                 <div class="link-description">推薦用戶註冊頁面</div>
                 <div class="link-wrapper">
                     <i class="fa fa-link"></i>
-                    <a href="#" target="_blank">【替換連結3】專屬註冊通道</a>
+                    <a href="【替換連結3】" target="_blank">【替換連結3】專屬註冊通道</a>
                     <button class="copy-btn" data-link="【替換連結3】"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -306,7 +414,7 @@
                 <div class="link-description">快速註冊無需驗證</div>
                 <div class="link-wrapper">
                     <i class="fa fa-link"></i>
-                    <a href="#" target="_blank">【替換連結4】快速註冊頁面</a>
+                    <a href="【替換連結4】" target="_blank">【替換連結4】快速註冊頁面</a>
                     <button class="copy-btn" data-link="【替換連結4】"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -314,7 +422,7 @@
                 <div class="link-description">新會員優惠活動</div>
                 <div class="link-wrapper">
                     <i class="fa fa-link"></i>
-                    <a href="#" target="_blank">【替換連結5】新會員註冊</a>
+                    <a href="【替換連結5】" target="_blank">【替換連結5】新會員註冊</a>
                     <button class="copy-btn" data-link="【替換連結5】"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -327,7 +435,7 @@
                 <div class="link-description">AT99</div>
                 <div class="link-wrapper">
                     <i class="fa fa-home"></i>
-                    <a href="#" target="_blank">https://at9demo.com/</a>
+                    <a href="https://at9demo.com/" target="_blank">https://at9demo.com/</a>
                     <button class="copy-btn" data-link="https://at9demo.com/"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -335,7 +443,7 @@
                 <div class="link-description">RG</div>
                 <div class="link-wrapper">
                     <i class="fa fa-user"></i>
-                    <a href="#" target="_blank">https://rg888.dev</a>
+                    <a href="https://rg888.dev" target="_blank">https://rg888.dev</a>
                     <button class="copy-btn" data-link="https://rg888.dev"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -343,7 +451,7 @@
                 <div class="link-description">TU</div>
                 <div class="link-wrapper">
                     <i class="fa fa-cog"></i>
-                    <a href="#" target="_blank">https://yhwt999.com</a>
+                    <a href="https://yhwt999.com" target="_blank">https://yhwt999.com</a>
                     <button class="copy-btn" data-link="https://yhwt999.com"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -356,7 +464,7 @@
                 <div class="link-description">豆包</div>
                 <div class="link-wrapper">
                     <i class="fa fa-search"></i>
-                    <a href="#" target="_blank">https://www.doubao.com/chat/</a>
+                    <a href="https://www.doubao.com/chat/" target="_blank">https://www.doubao.com/chat/</a>
                     <button class="copy-btn" data-link="https://www.doubao.com/chat/"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -364,7 +472,7 @@
                 <div class="link-description">GPT</div>
                 <div class="link-wrapper">
                     <i class="fa fa-file-text"></i>
-                    <a href="#" target="_blank">https://chatgpt.com/?locale=zh-TW</a>
+                    <a href="https://chatgpt.com/?locale=zh-TW" target="_blank">https://chatgpt.com/?locale=zh-TW</a>
                     <button class="copy-btn" data-link="https://chatgpt.com/?locale=zh-TW"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -372,20 +480,20 @@
                 <div class="link-description">圖片編輯與轉換</div>
                 <div class="link-wrapper">
                     <i class="fa fa-image"></i>
-                    <a href="#" target="_blank">【替換連結3】圖片工具</a>
+                    <a href="【替換連結3】" target="_blank">【替換連結3】圖片工具</a>
                     <button class="copy-btn" data-link="【替換連結3】"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
         </div>
 
-        <!-- 管 -->
+        <!-- 娛樂休閒 -->
         <div class="link-card">
             <h2 class="card-title"><i class="fa fa-film"></i>娛樂休閒</h2>
             <div class="link-item">
                 <div class="link-description">線上音樂收聽</div>
                 <div class="link-wrapper">
                     <i class="fa fa-music"></i>
-                    <a href="#" target="_blank">agent.at99tw.v588.co</a>
+                    <a href="https://agent.at99tw.v588.co" target="_blank">agent.at99tw.v588.co</a>
                     <button class="copy-btn" data-link="agent.at99tw.v588.co"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -393,7 +501,7 @@
                 <div class="link-description">影視劇觀看平台</div>
                 <div class="link-wrapper">
                     <i class="fa fa-television"></i>
-                    <a href="#" target="_blank">t22.354785.com</a>
+                    <a href="https://t22.354785.com" target="_blank">t22.354785.com</a>
                     <button class="copy-btn" data-link="t22.354785.com"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -401,7 +509,7 @@
                 <div class="link-description">線上遊戲娛樂</div>
                 <div class="link-wrapper">
                     <i class="fa fa-gamepad"></i>
-                    <a href="#" target="_blank">【替換連結3】遊戲平台</a>
+                    <a href="【替換連結3】" target="_blank">【替換連結3】遊戲平台</a>
                     <button class="copy-btn" data-link="【替換連結3】"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -414,7 +522,7 @@
                 <div class="link-description">即時通訊工具</div>
                 <div class="link-wrapper">
                     <i class="fa fa-comments"></i>
-                    <a href="#" target="_blank">【替換連結1】聊天工具</a>
+                    <a href="【替換連結1】" target="_blank">【替換連結1】聊天工具</a>
                     <button class="copy-btn" data-link="【替換連結1】"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -422,7 +530,7 @@
                 <div class="link-description">內容分享平台</div>
                 <div class="link-wrapper">
                     <i class="fa fa-share-alt"></i>
-                    <a href="#" target="_blank">【替換連結2】分享平台</a>
+                    <a href="【替換連結2】" target="_blank">【替換連結2】分享平台</a>
                     <button class="copy-btn" data-link="【替換連結2】"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
@@ -430,7 +538,7 @@
                 <div class="link-description">電子郵件服務</div>
                 <div class="link-wrapper">
                     <i class="fa fa-envelope"></i>
-                    <a href="#" target="_blank">【替換連結3】郵件服務</a>
+                    <a href="【替換連結3】" target="_blank">【替換連結3】郵件服務</a>
                     <button class="copy-btn" data-link="【替換連結3】"><i class="fa fa-copy"></i>複製</button>
                 </div>
             </div>
