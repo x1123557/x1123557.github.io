@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>核心脈衝 - 智能流體分子重構儀 | 官方網站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #0a0f22, #161f38);
+            color: #f8fafc;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        /* 頂部導航欄 */
+        .navbar {
+            background: rgba(15, 23, 42, 0.9);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        .navbar-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .brand {
+            font-size: 20px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+        .price-tag {
+            background: #fbbf24;
+            color: #0f172a;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* 產品頭部 */
+        .product-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .product-title {
+            font-size: 38px;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+        .product-en-title {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        .product-subtitle {
+            font-size: 19px;
+            color: #cbd5e1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* 產品圖片 */
+        .product-img-wrapper {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .product-img {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+
+        /* 核心邏輯模組 */
+        .core-logic {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 4px solid #38bdf8;
+        }
+        .core-logic h3 {
+            font-size: 22px;
+            color: #38bdf8;
+            margin-bottom: 15px;
+        }
+        .core-logic p {
+            font-size: 17px;
+            color: #e2e8f0;
+        }
+
+        /* 技術模組 */
+        .tech-module {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 35px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        .tech-module:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .tech-module h4 {
+            font-size: 20px;
+            color: #38bdf8;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .tech-module h4::before {
+            content: "🔬";
+            margin-right: 10px;
+            font-size: 22px;
+        }
+        .tech-module .tech-en {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 18px;
+            display: block;
+        }
+        .tech-module p {
+            font-size: 16px;
+            color: #e2e8f0;
+            margin-bottom: 12px;
+        }
+        .tech-module ul {
+            margin-left: 20px;
+            color: #e2e8f0;
+        }
+        .tech-module li {
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        /* 購買模組 */
+        .buy-section {
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin: 60px 0;
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
+        }
+        .buy-title {
+            font-size: 24px;
+            color: #0f172a;
+            margin-bottom: 15px;
+        }
+        .buy-price {
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 25px;
+        }
+        .buy-btn {
+            background: #fbbf24;
+            color: #0f172a;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .buy-btn:hover {
+            background: #f59e0b;
+        }
+
+        /* 彈窗樣式 */
+        .popup {
+            display: none; /* 預設隱藏 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background: #0f172a;
+            padding: 50px 80px;
+            border-radius: 20px;
+            text-align: center;
+            border: 4px solid #fbbf24;
+        }
+        .popup-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: #fbbf24;
+            margin-bottom: 30px;
+        }
+        .close-btn {
+            background: #38bdf8;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* 響應式調整 */
+        @media (max-width: 768px) {
+            .product-title {
+                font-size: 30px;
+            }
+            .buy-price {
+                font-size: 38px;
+            }
+            .tech-module {
+                padding: 25px;
+            }
+            .popup-text {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 頂部導航欄 -->
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="brand">核心脈衝 - 分子重構儀</div>
+            <div class="price-tag">特價 NT$ 29,988</div>
+        </div>
+    </div>
+
+    <!-- 主內容容器 -->
+    <div class="container">
+        <!-- 產品頭部資訊 -->
+        <div class="product-header">
+            <h1 class="product-title">核心脈衝 — 智能流體分子重構儀</h1>
+            <div class="product-en-title">Pulse-Core Molecular Reconfigurator</div>
+            <p class="product-subtitle">斷鏈 → 重組 → 精煉，實現柴油到98無鉛汽油的分子級轉化</p>
+        </div>
+
+        <!-- 產品圖片 -->
+        <div class="product-img-wrapper">
+            <img src="https://i.postimg.cc/GThDTphn/image.png" alt="核心脈衝智能流體分子重構儀" class="product-img">
+        </div>
+
+        <!-- 核心邏輯 -->
+        <div class="core-logic">
+            <h3>核心邏輯</h3>
+            <p>這套設備的核心邏輯在於：「斷鏈、重組、精煉」。</p>
+        </div>
+
+        <!-- 技術模組1：低溫電漿催化裂解 -->
+        <div class="tech-module">
+            <h4>1. 核心技術：低溫電漿催化裂解</h4>
+            <span class="tech-en">Cold Plasma Catalytic Cracking</span>
+            <p>柴油的碳鏈較長（通常為 C₁₅ 到 C₁₉），而 98 無鉛汽油的碳鏈較短（C₅ 到 C₁₂）。</p>
+            <ul>
+                <li>運作原理：設備內置奈米級「鈀-鉑合金」催化網，當柴油通過時，高壓電漿會產生高速電子撞擊長鏈分子，強行將其「剪斷」成汽油等級的短鏈分子。</li>
+            </ul>
+        </div>
+
+        <!-- 技術模組2：精準組分調配 -->
+        <div class="tech-module">
+            <h4>2. 精準組分調配：異構化單元</h4>
+            <span class="tech-en">Isomerization Unit</span>
+            <p>光有短鏈分子是不夠的，98 汽油需要極高的抗爆性。</p>
+            <ul>
+                <li>運作原理：轉換器會將直鏈烷烴重組為「異構烷烴」與「芳香烴」。這能讓燃料在不添加鉛或錳的情況下，自然達到 RON 98 的辛烷值水準。</li>
+            </ul>
+        </div>
+
+        <!-- 技術模組3：多重過濾與熱能回收 -->
+        <div class="tech-module">
+            <h4>3. 多重過濾與熱能回收</h4>
+            <ul>
+                <li>脫硫脫蠟：柴油中的蠟質與硫份會被內置的「離子交換樹脂」鎖死，確保產出的汽油比加油站的更純淨。</li>
+                <li>熱補償：利用裂解過程中產生的多餘熱能預熱進氣口，實現能量自給自足。</li>
+            </ul>
+        </div>
+
+        <!-- 購買模組 -->
+        <div class="buy-section">
+            <h3 class="buy-title">立即購買，開啟節能新體驗</h3>
+            <div class="buy-price">NT$ 29,988</div>
+            <button class="buy-btn" onclick="showPopup()">立即訂購</button>
+        </div>
+    </div>
+
+    <!-- 彈窗元件 -->
+    <div class="popup" id="trickPopup">
+        <div class="popup-content">
+            <div class="popup-text">ㄏ哈哈 還真的點進來
+你真的相信喔 要去哪裡裝
+圖片是避孕器啦 SB</div>
+            <button class="close-btn" onclick="closePopup()">關閉</button>
+        </div>
+    </div>
+
+    <!-- 交互腳本 -->
+    <script>
+        // 顯示彈窗
+        function showPopup() {
+            document.getElementById('trickPopup').style.display = 'flex';
+        }
+        // 關閉彈窗
+        function closePopup() {
+            document.getElementById('trickPopup').style.display = 'none';
+        }
+        // 點擊彈窗外層也能關閉
+        window.onclick = function(event) {
+            const popup = document.getElementById('trickPopup');
+            if (event.target === popup) {
+                closePopup();
+            }
+        }
+    </script>
+</body>
+</html>
